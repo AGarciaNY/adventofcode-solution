@@ -97,7 +97,10 @@ class Vector {
 
 
     reallocation() {
-        let newArray = [...this.#data]
+        let newArray = []
+        for(let i = 0;  i < this.#data.length; i++){
+            newArray.push()
+        }
         if (this.#currentSize === 0) {
             this.#capacity = 2
         } else {
