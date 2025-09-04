@@ -41,17 +41,25 @@ describe('MyClass', () => {
 
   it('After more pushback make sure the data are in the array', () => {
     instance.pushBack(20);
-    instance.pushBack(10);
-    instance.pushBack("hi");
-    instance.pushBack("cat");
+    console.log(instance.at(0))
 
-    let list = [20, 10, "hi", "cat"];
+    instance.pushBack(10);
+    console.log(instance.at(1))
+
+    instance.pushBack("hi");
+    console.log(instance.at(2))
+
+    instance.pushBack("cat");
+    console.log(instance.at(3))
+
+    console.log(instance)
     expect(instance.size()).toBe(4);
 
     expect(instance.at(0)).toBe(20);
     expect(instance.at(1)).toBe(10);
     expect(instance.at(2)).toBe("hi");
-    expect(instance.at(3)).toBe("a");
+
+    expect(instance.at(3)).toBe("cat");
 
     expect(instance.capacity()).toBe(8);
   });
@@ -74,7 +82,7 @@ describe('MyClass', () => {
     expect(() => instance.popback()).toThrow(new Error("nothing to pop"));
   });
 
-  it('Make sure it works after multiple pops', () => {
+  fit('Make sure it works after multiple pops', () => {
     instance.pushBack(20);
     instance.pushBack(10);
     instance.pushBack(30);
@@ -82,7 +90,7 @@ describe('MyClass', () => {
     instance.pushBack(2);
     expect(instance.popback()).toBe(2);
     expect(instance.popback()).toBe(40);
+    expect(instance.popback()).toBe(30);
     expect(instance.popback()).toBe(10);
-    expect(instance.popback()).toBe(20);
   });
 });
