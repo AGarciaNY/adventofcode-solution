@@ -1,19 +1,19 @@
-// import data from "./data.js";
-let data = `....#.....
-.........#
-..........
-..#.......
-.......#..
-..........
-.#..^.....
-........#.
-#.........
-......#...`;
+import data from "./data.js";
+// let data = `....#.....
+// .........#
+// ..........
+// ..#.......
+// .......#..
+// ..........
+// .#..^.....
+// ........#.
+// #.........
+// ......#...`;
 
 let map = data.split('\n');
 
 let startingPosition;
-let pastStart = new Set()
+
 for (let i = 0; i < map.length; i++) {
     for (let j = 0; j < map[0].length; j++) {
         if (map[i][j] === "^") {
@@ -25,44 +25,35 @@ for (let i = 0; i < map.length; i++) {
 let queue = [startingPosition];
 let direction = "up";
 let count = 0;
+let pastlocations = new Set();
 
-// trivers threw map
 function walk() {
     let [y, x] = queue.shift();
     let nextElement;
 
+
+    //add to count
+    if (!pastlocations.has(`${y},${x}`)) {
+        pastlocations.add(`${y},${x}`);
+        count++;
+    }
     // move to next position
     if (direction === "up") {
-        // add posible next path
-        checkForLoop([y, x], [y - 1, x], "right")
-        //check if out of bound
         if (y - 1 === -1) return true;
-        // get next element
         nextElement = map[y - 1][x];
 
     } if (direction === "right") {
-        // add posible next path
-        checkForLoop([y, x], [y, x + 1], "down")
-        //check if out of bound
         if (x + 1 === map[0].length) return true;
-        // get next element
         nextElement = map[y][x + 1];
 
     } if (direction === "down") {
-        // add posible next path
-        checkForLoop([y, x], [y + 1, x], "left")
-        //check if out of bound
         if (y + 1 === map.length) return true;
-        // get next element
         nextElement = map[y + 1][x];
 
     } if (direction === "left") {
-        // add posible next path
-        checkForLoop([y, x], [y, x - 1], "up")
-        //check if out of bound
         if (x - 1 === -1) return true;
-        // get next element
         nextElement = map[y][x - 1];
+
     };
 
     // switch direction
@@ -80,8 +71,7 @@ function walk() {
             direction = "up";
         };
     };
-
-    // add next step
+    // steps
     if (direction === "up") {
         queue.push([y - 1, x]);
 
@@ -99,94 +89,76 @@ while (queue.length > 0) {
     walk();
 }
 
-// check new path
-function checkForLoop(newStartingPosition, newWall, nextDirection) {
 
-    let startKey = `${newStartingPosition[0]},${newStartingPosition[1]}`;
-    let newQeue = [newStartingPosition]
+function checkForLoop(block) {
+  let queue = [startingPosition];
+  let direction = "up";
+  let visitedStates = new Set();
 
-    function checkWalk(newSet) {
-        let [y, x] = newQeue.shift();
-        if (!newSet.has(`${y},${x}`)) {
-            newSet.add(`${y},${x}`)
-        } else {
-            if (pastStart.has(`${y},${x}`)) {
-                return "noLoop"
-            }
-            pastStart.add(`${y},${x}`)
-            return "loop"
-        }
-        let nextElementPo;
+  function walk2() {
+    let [y, x] = queue.shift();
 
-        // move to next position
-        if (nextDirection === "up") {
-            if (y - 1 === -1) return true;
-            nextElementPo = [y - 1, x];
+    // state includes direction
+    let state = `${y},${x},${direction}`;
+    if (visitedStates.has(state)) {
+      return "loop"; // we’re stuck in cycle
+    }
+    visitedStates.add(state);
 
-        } if (nextDirection === "right") {
-            if (x + 1 === map[0].length) return true;
-            nextElementPo = [y, x + 1];
+    let nextY = y;
+    let nextX = x;
 
-        } if (nextDirection === "down") {
-            if (y + 1 === map.length) return true;
-            nextElementPo = [y + 1, x];
+    if (direction === "up") nextY = y - 1;
+    if (direction === "right") nextX = x + 1;
+    if (direction === "down") nextY = y + 1;
+    if (direction === "left") nextX = x - 1;
 
-        } if (nextDirection === "left") {
-            if (x - 1 === -1) return true;
-            nextElementPo = [y, x - 1];
-
-        };
-        if (`${nextElementPo[0]},${nextElementPo[1]}` === startKey) {
-            if (pastStart.has(`${y},${x}`)) {
-                return "noLoop"
-            }
-            pastStart.add(`${y},${x}`)
-            return "loop"
-        }
-        // switch direction
-        if (map[nextElementPo[0]][nextElementPo[1]] === "#" || `${nextElementPo[0]},${nextElementPo[1]}` === `${newWall[0]},${newWall[1]}`) {
-            if (nextDirection === "up") {
-                nextDirection = "right";
-
-            } else if (nextDirection === "right") {
-                nextDirection = "down";
-
-            } else if (nextDirection === "down") {
-                nextDirection = "left";
-
-            } else if (nextDirection === "left") {
-                nextDirection = "up";
-            };
-        };
-
-        // steps
-        if (nextDirection === "up") {
-            newQeue.push([y - 1, x]);
-
-        } if (nextDirection === "right") {
-            newQeue.push([y, x + 1]);
-
-        } if (nextDirection === "down") {
-            newQeue.push([y + 1, x]);
-
-        } if (nextDirection === "left") {
-            newQeue.push([y, x - 1]);
-        }
+    // check bounds
+    if (nextY < 0 || nextY >= map.length || nextX < 0 || nextX >= map[0].length) {
+      return "exit";
     }
 
-    let newPathSet = new Set()
-    
-    while (newQeue.length > 0) {
-        let result = checkWalk(newPathSet);
-        if (result === "loop") {
-            count++
-            newQeue = []
-            break
-        } else if (result === "noLoop") {
-            newQeue = []
-            break
-        }
-    }
+    // treat block + "#" as obstacles
+    let isBlock =
+      (block && block[0] === nextY && block[1] === nextX) ||
+      map[nextY][nextX] === "#";
 
+    if (isBlock) {
+      // turn right
+      if (direction === "up") direction = "right";
+      else if (direction === "right") direction = "down";
+      else if (direction === "down") direction = "left";
+      else if (direction === "left") direction = "up";
+
+      // stay in place after turning
+      queue.push([y, x]);
+    } else {
+      // move forward
+      queue.push([nextY, nextX]);
+    }
+  }
+
+  while (queue.length > 0) {
+    let result = walk2();
+    if (result === "loop") return true;
+    if (result === "exit") return false;
+  }
+  return false;
 }
-console.log(count, startingPosition)
+
+
+// Part 2: try placing blocks on each visited cell
+let loopCount = 0;
+for (let pos of pastlocations) {
+  let [y, x] = pos.split(",").map(Number);
+
+  // skip the starting cell
+  if (y === startingPosition[0] && x === startingPosition[1]) continue;
+
+  if (checkForLoop([y, x])) {
+    loopCount++;
+  }
+}
+
+
+console.log(loopCount, "possible two-block loop placements");

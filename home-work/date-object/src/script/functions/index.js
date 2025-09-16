@@ -122,7 +122,7 @@ class Vector {
 };
 
 
-let myCustomArray = new Vector();
+// let myCustomArray = new Vector();
 // myCustomArray.size();
 // myCustomArray.capacity();
 // myCustomArray.isEmpty();
@@ -133,7 +133,4 @@ let myCustomArray = new Vector();
 // myCustomArray.insert(1, "bani");
 
 // console.log(myCustomArray.erase(0))
-
-console.log(myCustomArray.find("bacas"));
-let myArray= new Vector();
 export default Vector;
